@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 120" width="100%" height="100%">
+  <defs>
+    <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF1E2D" />
+      <stop offset="100%" stop-color="#E50914" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Dumbbell + AI Flame Icon -->
+  <g transform="translate(15, 15)">
+    <rect x="15" y="40" width="60" height="10" rx="5" fill="url(#redGradient)" />
+    <rect x="5" y="25" width="16" height="40" rx="4" fill="#FFFFFF" />
+    <rect x="69" y="25" width="16" height="40" rx="4" fill="#FFFFFF" />
+    <rect x="0" y="32" width="8" height="26" rx="2" fill="url(#redGradient)" filter="url(#glow)" />
+    <rect x="82" y="32" width="8" height="26" rx="2" fill="url(#redGradient)" filter="url(#glow)" />
+    <!-- AI Spark Dot -->
+    <circle cx="45" cy="20" r="6" fill="#FF1E2D" filter="url(#glow)" />
+  </g>
+
+  <!-- Text -->
+  <text x="125" y="65" font-family="'Outfit', 'Inter', sans-serif" font-weight="900" font-size="44" fill="#FFFFFF" letter-spacing="-1">
+    FIT<tspan fill="#E50914">TRACK</tspan>
+  </text>
+  <rect x="365" y="32" width="54" height="28" rx="6" fill="url(#redGradient)" />
+  <text x="392" y="52" font-family="'Outfit', 'Inter', sans-serif" font-weight="800" font-size="16" fill="#FFFFFF" text-anchor="middle">
+    AI
+  </text>
+  <text x="126" y="88" font-family="'Inter', sans-serif" font-weight="500" font-size="14" fill="#B8B8B8" letter-spacing="2">
+    TRACK • EAT • TRANSFORM
+  </text>
+</svg>

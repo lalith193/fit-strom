@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Water Tracker - FitTrack AI{% endblock %}
+{% block page_title %}Hydration Tracker{% endblock %}
+{% block page_subtitle %}Monitor your daily hydration goal of 3.0 Liters.{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+  <!-- Left Card: Interactive Bottle Visual -->
+  <div class="card" style="text-align: center;">
+    <h3 class="card-title" style="justify-content: center; margin-bottom: 1.5rem;">
+      <i class="fas fa-tint"></i> Today's Hydration
+    </h3>
+
+    <div class="water-container">
+      <div class="water-bottle">
+        {% set water_pct = (water_today / target * 100) %}
+        {% set water_bar_height = water_pct if water_pct <= 100 else 100 %}
+        <div class="water-fill" id="water-fill-bar" style="height: {{ water_bar_height }}%;"></div>
+      </div>
+      
+      <div>
+        <div style="font-size: 2.25rem; font-weight: 900; color: var(--red-bright);" id="water-val-display">
+          {{ water_today }} / {{ target }} L
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">
+          {{ ((target - water_today) * 1000) | round(0) | int if target > water_today else 0 }} ml remaining for optimal hydration
+        </p>
+      </div>
+    </div>
+
+    <!-- Quick Add Buttons -->
+    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem; flex-wrap: wrap;">
+      <button class="btn btn-secondary btn-add-water" data-amount="0.25">
+        <i class="fas fa-plus"></i> +250 ml (1 Glass)
+      </button>
+      <button class="btn btn-secondary btn-add-water" data-amount="0.5">
+        <i class="fas fa-plus"></i> +500 ml (1 Bottle)
+      </button>
+      <button class="btn btn-primary btn-add-water" data-amount="1.0">
+        <i class="fas fa-plus"></i> +1.0 Liter
+      </button>
+    </div>
+  </div>
+
+  <!-- Right Card: Today's Water Log History -->
+  <div class="card">
+    <h3 class="card-title" style="margin-bottom: 1.25rem;"><i class="fas fa-list-ul"></i> Hydration Log History</h3>
+    {% if logs|length == 0 %}
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">No water logged today. Click the buttons on the left to add water!</p>
+    {% else %}
+      {% for item in logs %}
+        <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--bg-surface); border-radius: var(--radius-sm); margin-bottom: 0.5rem;">
+          <div>
+            <span style="font-weight: 700; color: var(--red-bright);"><i class="fas fa-glass-water"></i> +{{ (item.amount * 1000) | int }} ml</span>
+          </div>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">Today</span>
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

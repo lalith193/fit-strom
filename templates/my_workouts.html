@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}My Workouts - FitTrack AI{% endblock %}
+{% block page_title %}My Saved Workouts{% endblock %}
+{% block page_subtitle %}Manage, activate, duplicate, or edit your saved workout plans.{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h3 style="font-size: 1.25rem; margin: 0;"><i class="fas fa-bookmark" style="color: var(--red-bright);"></i> Your Saved Plans</h3>
+  </div>
+  <a href="{{ url_for('workout') }}" class="btn btn-primary btn-sm">
+    <i class="fas fa-plus"></i> Create New Plan
+  </a>
+</div>
+
+<div class="grid-cards" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+  {% for plan in plans %}
+    <div class="card" style="position: relative; {% if plan.is_active %}border-color: var(--red-bright); box-shadow: 0 0 20px var(--red-glow);{% endif %}">
+      {% if plan.is_active %}
+        <div class="ai-badge" style="position: absolute; top: 1rem; right: 1rem; background: rgba(0, 255, 102, 0.15); color: #00FF66; border-color: #00FF66;">
+          <i class="fas fa-check-circle"></i> ACTIVE
+        </div>
+      {% endif %}
+      <div style="font-size: 0.78rem; font-weight: 700; color: var(--red-bright); text-transform: uppercase; margin-bottom: 0.4rem;">
+        {{ plan.category or 'PERSONALIZED' }} &bull; {{ plan.experience_level or 'Intermediate' }}
+      </div>
+      <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem; color: #fff;">{{ plan.name }}</h3>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">{{ plan.description }}</p>
+      
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+        <a href="{{ url_for('workout', plan_id=plan.id) }}" class="btn btn-primary btn-sm" style="flex: 1;">
+          <i class="fas fa-eye"></i> View & Edit
+        </a>
+        {% if not plan.is_active %}
+          <button class="btn btn-secondary btn-sm" onclick="activatePlan({{ plan.id }})">
+            <i class="fas fa-play"></i> Activate
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+    <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;">
+      <i class="fas fa-dumbbell" style="font-size: 3rem; color: var(--border-color); margin-bottom: 1rem;"></i>
+      <h4>No Saved Workouts Found</h4>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">Create a custom plan or select a pre-defined workout category in the Workout Planner.</p>
+      <a href="{{ url_for('workout') }}" class="btn btn-primary">Go to Workout Planner</a>
+    </div>
+  {% endfor %}
+</div>
+
+<script>
+async function activatePlan(planId) {
+  const formData = new FormData();
+  formData.append('plan_id', planId);
+  try {
+    const res = await fetch('/api/workout/select-category', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => window.location.href = `/workout?plan_id=${planId}`, 600);
+    }
+  } catch (err) {
+    showToast('Failed to activate plan.', 'danger');
+  }
+}
+</script>
+{% endblock %}

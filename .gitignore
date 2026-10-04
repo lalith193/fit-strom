@@ -10,3 +10,6 @@ ENV/
 .idea/
 .vscode/
 *.log
+*.db
+*.sqlite3
+fitness.db

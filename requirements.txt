@@ -3,4 +3,5 @@ Werkzeug==3.0.1
 requests==2.31.0
 google-genai
 python-dotenv
+gunicorn>=21.2.0
 

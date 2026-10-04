@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}FitTrack AI - Track Better. Eat Smarter. Get Stronger.{% endblock %}</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+  <!-- Flash Messages Toast Container -->
+  <div id="flash-messages" class="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            <i class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'danger' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  {% if session.get('user_id') %}
+  <div class="app-container">
+    <!-- Desktop Sidebar Navigation -->
+    <aside class="sidebar">
+      <a href="{{ url_for('dashboard') }}" class="brand-logo">
+        <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="FitTrack AI Logo">
+      </a>
+      <ul class="nav-links">
+        <li class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+          <a href="{{ url_for('dashboard') }}"><i class="fas fa-th-large"></i> Dashboard</a>
+        </li>
+        <li class="nav-item {% if request.endpoint == 'food_explorer' %}active{% endif %}">
+          <a href="{{ url_for('food_explorer') }}"><i class="fas fa-utensils"></i> Food Explorer</a>
+        </li>
+        <li class="nav-item {% if request.endpoint == 'recipes' %}active{% endif %}">
+          <a href="{{ url_for('recipes') }}"><i class="fas fa-book-open"></i> Recipes</a>
+        </li>
+        <li class="nav-item {% if request.endpoint == 'workout' or request.endpoint == 'workout_planner' %}active{% endif %}">
+          <a href="{{ url_for('workout') }}"><i class="fas fa-dumbbell"></i> Workout Planner</a>
+        </li>
+        <li class="nav-item {% if request.endpoint == 'my_workouts' %}active{% endif %}">
+          <a href="{{ url_for('my_workouts') }}"><i class="fas fa-bookmark"></i> My Workouts</a>
+        </li>
+        <li class="nav-item {% if request.endpoint == 'workout_history' %}active{% endif %}">
+          <a href="{{ url_for('workout_history') }}"><i class="fas fa-history"></i> Workout History</a>
+        </li>
+        <li class="nav-item {% if request.endpoint == 'progress' %}active{% endif %}">
+          <a href="{{ url_for('progress') }}"><i class="fas fa-chart-line"></i> Progress</a>
+        </li>
+        <li class="nav-item {% if request.endpoint == 'water' %}active{% endif %}">
+          <a href="{{ url_for('water') }}"><i class="fas fa-tint"></i> Water Tracker</a>
+        </li>
+        <li class="nav-item {% if request.endpoint == 'ai_coach' %}active{% endif %}">
+          <a href="{{ url_for('ai_coach') }}"><i class="fas fa-sparkles"></i> AI Assistant</a>
+        </li>
+        <li class="nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+          <a href="{{ url_for('profile') }}"><i class="fas fa-user"></i> Profile</a>
+        </li>
+        <li class="nav-item {% if request.endpoint == 'settings' %}active{% endif %}">
+          <a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> Settings</a>
+        </li>
+      </ul>
+      <div style="margin-top: auto; padding: 1.25rem; border-top: 1px solid var(--border-color);">
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-full btn-sm">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Header Bar -->
+      <header class="top-header">
+        <div class="user-welcome">
+          <h1>{% block page_title %}FitTrack AI Dashboard{% endblock %}</h1>
+          <p>{% block page_subtitle %}Track your daily performance and reach your goals.{% endblock %}</p>
+        </div>
+        <div class="top-actions">
+          <a href="{{ url_for('ai_coach') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-sparkles"></i> AI Assistant
+          </a>
+          <div class="user-dropdown">
+            <button id="avatar-dropdown-btn" class="avatar-btn">
+              <div class="avatar-icon">{{ session.get('user_name', 'U')[0] | upper }}</div>
+              <span>{{ session.get('user_name', 'User') }}</span>
+              <i class="fas fa-chevron-down" style="font-size: 0.75rem;"></i>
+            </button>
+            <div id="user-dropdown-menu" class="dropdown-menu">
+              <a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i> Profile</a>
+              <a href="{{ url_for('profile') }}"><i class="fas fa-edit"></i> Edit Profile</a>
+              <a href="{{ url_for('settings') }}"><i class="fas fa-cog"></i> Settings</a>
+              <a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+      <a href="{{ url_for('dashboard') }}" class="bottom-nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </a>
+      <a href="{{ url_for('food_explorer') }}" class="bottom-nav-item {% if request.endpoint == 'food_explorer' %}active{% endif %}">
+        <i class="fas fa-utensils"></i>
+        <span>Food</span>
+      </a>
+      <a href="{{ url_for('workout') }}" class="bottom-nav-item {% if request.endpoint == 'workout' %}active{% endif %}">
+        <i class="fas fa-dumbbell"></i>
+        <span>Workout</span>
+      </a>
+      <a href="{{ url_for('progress') }}" class="bottom-nav-item {% if request.endpoint == 'progress' %}active{% endif %}">
+        <i class="fas fa-chart-line"></i>
+        <span>Progress</span>
+      </a>
+      <a href="{{ url_for('profile') }}" class="bottom-nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+      </a>
+    </nav>
+
+    <!-- Floating Red AI Button -->
+    <a href="{{ url_for('ai_coach') }}" class="floating-ai-btn" title="Free AI Assistant">
+      <i class="fas fa-sparkles"></i>
+    </a>
+  </div>
+  {% else %}
+    {% block public_content %}{% endblock %}
+  {% endif %}
+
+  <!-- Application Global JS -->
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

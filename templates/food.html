@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Food Explorer - FitTrack AI{% endblock %}
+{% block page_title %}Food Explorer & Tracker{% endblock %}
+{% block page_subtitle %}Discover nutrient-dense foods and log your daily meals.{% endblock %}
+
+{% block content %}
+<!-- Search & Filter Controls -->
+<div class="card">
+  <form action="{{ url_for('food_explorer') }}" method="GET" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+    <div style="flex: 1; min-width: 250px;">
+      <input type="text" name="q" class="form-control" placeholder="Search foods (e.g., Egg, Oats, Paneer)..." value="{{ search_query }}">
+    </div>
+    <button type="submit" class="btn btn-primary">
+      <i class="fas fa-search"></i> Search
+    </button>
+  </form>
+
+  <div class="filter-pills" style="margin-top: 1.25rem; margin-bottom: 0;">
+    <a href="{{ url_for('food_explorer', category='All', q=search_query) }}" class="pill {% if selected_category == 'All' %}active{% endif %}">All Foods</a>
+    <a href="{{ url_for('food_explorer', category='High Protein', q=search_query) }}" class="pill {% if selected_category == 'High Protein' %}active{% endif %}">High Protein</a>
+    <a href="{{ url_for('food_explorer', category='High Fiber', q=search_query) }}" class="pill {% if selected_category == 'High Fiber' %}active{% endif %}">High Fiber</a>
+    <a href="{{ url_for('food_explorer', category='Healthy Fats', q=search_query) }}" class="pill {% if selected_category == 'Healthy Fats' %}active{% endif %}">Healthy Fats</a>
+    <a href="{{ url_for('food_explorer', category='Fruits', q=search_query) }}" class="pill {% if selected_category == 'Fruits' %}active{% endif %}">Fruits</a>
+    <a href="{{ url_for('food_explorer', category='Carbohydrates', q=search_query) }}" class="pill {% if selected_category == 'Carbohydrates' %}active{% endif %}">Carbohydrates</a>
+  </div>
+</div>
+
+<!-- Foods Grid -->
+<div style="margin-bottom: 2rem;">
+  <h3 style="font-size: 1.25rem; margin-bottom: 1.25rem;">
+    <i class="fas fa-apple-alt" style="color: var(--red-bright);"></i> Available Foods Database ({{ foods|length }})
+  </h3>
+
+  {% if foods|length == 0 %}
+    <div class="card" style="text-align: center; padding: 3rem;">
+      <i class="fas fa-exclamation-circle" style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+      <p style="color: var(--text-secondary);">No foods match your search criteria.</p>
+    </div>
+  {% else %}
+    <div class="grid-cards">
+      {% for food in foods %}
+        <div class="food-card">
+          <div>
+            <div class="food-header">
+              <span class="food-name">{{ food.name }}</span>
+              <span class="food-category">{{ food.category }}</span>
+            </div>
+            <div class="food-serving"><i class="fas fa-balance-scale"></i> Serving: {{ food.serving }}</div>
+            
+            <div class="macro-stats">
+              <div class="macro-item">
+                <span class="macro-label">CAL</span>
+                <span class="macro-val">{{ food.calories | round(0) | int }}</span>
+              </div>
+              <div class="macro-item">
+                <span class="macro-label">PROT</span>
+                <span class="macro-val">{{ food.protein }}g</span>
+              </div>
+              <div class="macro-item">
+                <span class="macro-label">FIBER</span>
+                <span class="macro-val">{{ food.fiber }}g</span>
+              </div>
+              <div class="macro-item">
+                <span class="macro-label">FAT</span>
+                <span class="macro-val">{{ food.fat }}g</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-full btn-sm btn-add-food" 
+                  data-food-id="{{ food.id }}"
+                  data-food-name="{{ food.name }}"
+                  data-food-serving="{{ food.serving }}"
+                  data-is-per-item="{{ food.is_per_item }}">
+            <i class="fas fa-plus"></i> Add Food
+          </button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+<!-- Today's Log History Section -->
+<div class="card">
+  <h3 class="card-title" style="margin-bottom: 1rem;"><i class="fas fa-history"></i> Today's Food Logs</h3>
+  {% if today_logs|length == 0 %}
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">No meals logged today yet. Use the "+ Add Food" buttons above!</p>
+  {% else %}
+    {% for item in today_logs %}
+      <div class="food-log-item">
+        <div class="food-log-info">
+          <h4>{{ item.food_name }} <span style="font-weight: normal; color: var(--red-bright);">({{ item.meal_type }})</span></h4>
+          <p>{{ item.quantity }} {{ item.unit }} &bull; {{ item.calories }} kcal &bull; {{ item.protein }}g Protein &bull; {{ item.carbs }}g Carbs &bull; {{ item.fat }}g Fat &bull; {{ item.fiber }}g Fiber</p>
+        </div>
+        <button onclick="deleteFoodLog({{ item.id }})" class="btn-icon-delete" title="Delete log">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
+
+<!-- Modal: Add Food -->
+<div id="add-food-modal" class="modal-overlay">
+  <div class="modal-content">
+    <button onclick="closeModal('add-food-modal')" class="modal-close"><i class="fas fa-times"></i></button>
+    <h3 style="margin-bottom: 1.25rem;" id="modal-food-title">Add Food to Log</h3>
+    
+    <form id="add-food-form">
+      <input type="hidden" name="food_id" id="modal-food-id">
+      
+      <div class="form-group">
+        <label class="form-label" id="modal-food-serving-label">Quantity:</label>
+        <input type="number" step="0.1" name="quantity" id="modal-qty-input" class="form-control" value="100" min="0.1" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Meal Type:</label>
+        <select name="meal_type" class="form-control">
+          <option value="Breakfast">Breakfast</option>
+          <option value="Lunch">Lunch</option>
+          <option value="Snack">Snack</option>
+          <option value="Dinner">Dinner</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" style="margin-top: 1rem;">
+        <i class="fas fa-plus"></i> ADD TO TODAY
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

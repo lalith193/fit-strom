@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}FitTrack AI - Your Fitness. Your Data. Your AI Coach.{% endblock %}
+{% block body_class %}landing-body{% endblock %}
+
+{% block public_content %}
+<!-- Landing Page Navigation -->
+<nav style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 3rem; background: var(--bg-deep); border-bottom: 1px solid var(--border-color);">
+  <a href="{{ url_for('index') }}" class="brand-logo" style="padding:0;">
+    <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="FitTrack AI Logo" style="height:42px;">
+  </a>
+  <div style="display: flex; gap: 2rem; align-items: center;">
+    <a href="#features" style="color: var(--text-secondary); font-weight: 500;">Features</a>
+    <a href="#nutrition" style="color: var(--text-secondary); font-weight: 500;">Nutrition</a>
+    <a href="#workouts" style="color: var(--text-secondary); font-weight: 500;">Workouts</a>
+    <a href="{{ url_for('login') }}" class="btn btn-secondary btn-sm">Login</a>
+    <a href="{{ url_for('register') }}" class="btn btn-primary btn-sm">Register</a>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="hero-text">
+    <div class="ai-badge" style="margin-bottom: 1.25rem;">
+      <i class="fas fa-bolt"></i> NEXT-GEN AI FITNESS PLATFORM
+    </div>
+    <h1>Your Fitness.<br>Your Data.<br><span style="color: var(--red-bright);">Your AI Coach.</span></h1>
+    <p>Track your nutrition, workouts, water intake, and body progress in one intelligent red-and-black fitness dashboard powered by AI.</p>
+    <div class="hero-buttons">
+      <a href="{{ url_for('register') }}" class="btn btn-primary" style="padding: 0.9rem 2rem; font-size: 1.05rem;">
+        <i class="fas fa-play"></i> Start Tracking
+      </a>
+      <a href="#features" class="btn btn-secondary" style="padding: 0.9rem 2rem; font-size: 1.05rem;">
+        Explore Features
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+      <div style="font-weight: 700; font-family: var(--font-heading);">FitTrack AI Dashboard</div>
+      <div class="ai-badge"><i class="fas fa-circle" style="color:#00FF66; font-size:0.5rem;"></i> LIVE PREVIEW</div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+      <div style="background: var(--bg-surface); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--red-primary);">
+        <div style="font-size: 0.75rem; color: var(--text-secondary);">CALORIES</div>
+        <div style="font-size: 1.4rem; font-weight: 800; color: #fff;">1,840 / 2,200 <span style="font-size:0.8rem; font-weight:normal;">kcal</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 83%;"></div></div>
+      </div>
+      <div style="background: var(--bg-surface); padding: 1rem; border-radius: 8px; border-left: 3px solid var(--red-bright);">
+        <div style="font-size: 0.75rem; color: var(--text-secondary);">PROTEIN</div>
+        <div style="font-size: 1.4rem; font-weight: 800; color: #fff;">126 / 140 <span style="font-size:0.8rem; font-weight:normal;">g</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 90%;"></div></div>
+      </div>
+    </div>
+
+    <div style="background: rgba(229, 9, 20, 0.15); border: 1px solid var(--red-primary); padding: 1rem; border-radius: 8px;">
+      <div style="font-size: 0.8rem; font-weight: 700; color: var(--red-bright); margin-bottom: 0.3rem;">
+        <i class="fas fa-robot"></i> AI RECOMMENDATION
+      </div>
+      <div style="font-size: 0.9rem; color: var(--text-primary);">
+        "Your protein targets are almost complete! Consider 150g Greek Yogurt with chia seeds for post-workout recovery."
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" style="max-width: 1200px; margin: 4rem auto; padding: 0 2rem;">
+  <div style="text-align: center; margin-bottom: 3.5rem;">
+    <h2 style="font-size: 2.25rem; margin-bottom: 0.5rem;">Engineered For Peak Performance</h2>
+    <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">Everything you need to master your nutrition, elevate your training, and monitor your body transformation.</p>
+  </div>
+
+  <div class="grid-cards" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+    <div class="card">
+      <div class="metric-icon"><i class="fas fa-utensils"></i></div>
+      <h3>Nutrition Tracking</h3>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Track calories, protein, carbohydrates, fiber, and healthy fats with precision serving calculators.</p>
+    </div>
+
+    <div class="card">
+      <div class="metric-icon"><i class="fas fa-search"></i></div>
+      <h3>Food Explorer</h3>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Search and discover nutrient-dense foods curated for high-protein, fiber-rich, and healthy fat requirements.</p>
+    </div>
+
+    <div class="card">
+      <div class="metric-icon"><i class="fas fa-book-open"></i></div>
+      <h3>Smart Recipes</h3>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Explore curated fitness recipes for Muscle Gain, Weight Loss, and High Protein diets with 1-click ingredient logging.</p>
+    </div>
+
+    <div class="card">
+      <div class="metric-icon"><i class="fas fa-dumbbell"></i></div>
+      <h3>Workout Plans</h3>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Follow structured routines with live interactive set completion, rest timers, and exercise tracking.</p>
+    </div>
+
+    <div class="card">
+      <div class="metric-icon"><i class="fas fa-chart-line"></i></div>
+      <h3>Progress Tracking</h3>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Visualize weight trends, daily macro adherence, and workout frequency using Chart.js visualizations.</p>
+    </div>
+
+    <div class="card">
+      <div class="metric-icon"><i class="fas fa-robot"></i></div>
+      <h3>AI Fitness Coach</h3>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">Chat with your personalized AI Coach for custom meal advice, macro analysis, and training routines.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer style="background: var(--bg-deep); border-top: 1px solid var(--border-color); padding: 3rem 2rem; margin-top: 4rem;">
+  <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+    <div>
+      <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="FitTrack AI" style="height:36px; margin-bottom:0.5rem;">
+      <p style="color: var(--text-muted); font-size: 0.85rem;">Track Better. Eat Smarter. Get Stronger.</p>
+    </div>
+    <div style="display: flex; gap: 1.5rem; font-size: 0.9rem;">
+      <a href="{{ url_for('index') }}" style="color: var(--text-secondary);">Home</a>
+      <a href="#features" style="color: var(--text-secondary);">Features</a>
+      <a href="{{ url_for('login') }}" style="color: var(--text-secondary);">Login</a>
+      <a href="{{ url_for('register') }}" style="color: var(--text-secondary);">Register</a>
+    </div>
+  </div>
+</footer>
+{% endblock %}

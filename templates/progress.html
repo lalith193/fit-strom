@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Progress Analytics - FitTrack AI{% endblock %}
+{% block page_title %}Progress & Macro Analytics{% endblock %}
+{% block page_subtitle %}Track weight trends, weekly calorie targets, and macro consistency.{% endblock %}
+
+{% block content %}
+<!-- Summary Weight Metrics Cards -->
+<div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 1.5rem;">
+  <div class="metric-card">
+    <div class="metric-icon"><i class="fas fa-weight-hanging"></i></div>
+    <div class="metric-title">Starting Weight</div>
+    <div class="metric-value">{{ start_weight }} <span style="font-size:0.9rem; font-weight:normal;">kg</span></div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon"><i class="fas fa-weight"></i></div>
+    <div class="metric-title">Current Weight</div>
+    <div class="metric-value" style="color: var(--red-bright);">{{ current_weight }} <span style="font-size:0.9rem; font-weight:normal;">kg</span></div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon"><i class="fas fa-exchange-alt"></i></div>
+    <div class="metric-title">Total Change</div>
+    <div class="metric-value">
+      {% if weight_change > 0 %}+{{ weight_change }}{% else %}{{ weight_change }}{% endif %} <span style="font-size:0.9rem; font-weight:normal;">kg</span>
+    </div>
+  </div>
+
+  <div class="metric-card">
+    <div class="metric-icon"><i class="fas fa-calculator"></i></div>
+    <div class="metric-title">BMI Estimate</div>
+    <div class="metric-value">{{ targets.bmi }}</div>
+  </div>
+</div>
+
+<!-- Quick Weight Log Action -->
+<div class="card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+  <div>
+    <h3 style="font-size: 1.1rem;"><i class="fas fa-edit" style="color: var(--red-bright);"></i> Update Current Weight</h3>
+    <p style="color: var(--text-secondary); font-size: 0.85rem;">Log today's weight to update your progress charts and target calculations.</p>
+  </div>
+  <form id="log-weight-form" style="display: flex; gap: 0.5rem;" onsubmit="handleWeightSubmit(event)">
+    <input type="number" step="0.1" name="weight" class="form-control" placeholder="70.5" style="width: 110px;" value="{{ current_weight }}" required>
+    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-check"></i> Log Weight</button>
+  </form>
+</div>
+
+<!-- Charts Section -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-chart-line"></i> Weight Trend History</h3>
+    </div>
+    <canvas id="weightChart" height="220"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-fire"></i> Daily Calorie Intake (7 Days)</h3>
+    </div>
+    <canvas id="caloriesChart" height="220"></canvas>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title"><i class="fas fa-drumstick-bite"></i> Protein Consumed (g)</h3>
+  </div>
+  <canvas id="proteinChart" height="150"></canvas>
+</div>
+
+<script>
+async function handleWeightSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  try {
+    const res = await fetch('/api/log-weight', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => window.location.reload(), 800);
+    }
+  } catch (err) {
+    showToast('Failed to log weight.', 'danger');
+  }
+}
+</script>
+{% endblock %}

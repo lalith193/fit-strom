@@ -1,0 +1,721 @@
+{% extends "base.html" %}
+
+{% block title %}Personalized Workout Planner - FitTrack AI{% endblock %}
+{% block page_title %}Personalized Workout Planner{% endblock %}
+{% block page_subtitle %}Choose a category, generate personalized plans, edit exercises, and track your weekly progress.{% endblock %}
+
+{% block content %}
+<!-- Safety Disclaimer Banner -->
+<div style="background: rgba(229, 9, 20, 0.12); border: 1px solid var(--red-primary); padding: 1rem 1.25rem; border-radius: var(--radius-md); margin-bottom: 1.75rem; display: flex; align-items: center; gap: 0.85rem;">
+  <i class="fas fa-shield-alt" style="font-size: 1.5rem; color: var(--red-bright);"></i>
+  <div style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.4;">
+    <strong style="color: var(--text-primary);">Fitness Safety Disclaimer:</strong> Workout recommendations are general fitness guidance and are not a substitute for professional medical or fitness advice. Stop exercising immediately if you experience pain, dizziness, or unusual discomfort.
+  </div>
+</div>
+
+<!-- 1. Four Main Workout Category Cards -->
+<div style="margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+    <h3 style="font-size: 1.15rem; margin:0; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
+      <i class="fas fa-bullseye" style="color: var(--red-bright);"></i> Choose Fitness Goal Category
+    </h3>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <button class="btn btn-secondary btn-sm" onclick="openModal('ai-workout-generator-modal')">
+        <i class="fas fa-robot" style="color: var(--red-bright);"></i> Generate with AI
+      </button>
+      <button class="btn btn-secondary btn-sm" onclick="openModal('custom-plan-modal')">
+        <i class="fas fa-plus"></i> Create Custom
+      </button>
+      <a href="{{ url_for('my_workouts') }}" class="btn btn-secondary btn-sm">
+        <i class="fas fa-folder"></i> My Workouts
+      </a>
+      <a href="{{ url_for('workout_history') }}" class="btn btn-secondary btn-sm">
+        <i class="fas fa-history"></i> History
+      </a>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem;">
+    <!-- Category A: Weight Loss -->
+    <div onclick="selectCategory('Weight Loss')" class="card" style="margin-bottom:0; cursor:pointer; position:relative; transition: transform 0.2s ease; {% if active_plan and active_plan.category == 'Weight Loss' %}border-color: var(--red-bright); box-shadow: 0 0 20px var(--red-glow); background: linear-gradient(135deg, var(--bg-card) 0%, #29080B 100%);{% endif %}">
+      {% if active_plan and active_plan.category == 'Weight Loss' %}
+        <div class="ai-badge" style="position: absolute; top: 0.85rem; right: 0.85rem; font-size: 0.68rem;"><i class="fas fa-check-circle"></i> ACTIVE</div>
+      {% endif %}
+      <div style="font-size: 1.8rem; color: var(--red-bright); margin-bottom: 0.5rem;"><i class="fas fa-fire-alt"></i></div>
+      <h3 style="font-size: 1.15rem; margin-bottom: 0.35rem; color:#fff;">Weight Loss</h3>
+      <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; margin:0;">Calorie burning, fat loss, endurance & full-body circuits.</p>
+    </div>
+
+    <!-- Category B: Muscle Gain -->
+    <div onclick="selectCategory('Muscle Gain')" class="card" style="margin-bottom:0; cursor:pointer; position:relative; transition: transform 0.2s ease; {% if active_plan and active_plan.category == 'Muscle Gain' %}border-color: var(--red-bright); box-shadow: 0 0 20px var(--red-glow); background: linear-gradient(135deg, var(--bg-card) 0%, #29080B 100%);{% endif %}">
+      {% if active_plan and active_plan.category == 'Muscle Gain' %}
+        <div class="ai-badge" style="position: absolute; top: 0.85rem; right: 0.85rem; font-size: 0.68rem;"><i class="fas fa-check-circle"></i> ACTIVE</div>
+      {% endif %}
+      <div style="font-size: 1.8rem; color: var(--red-bright); margin-bottom: 0.5rem;"><i class="fas fa-dumbbell"></i></div>
+      <h3 style="font-size: 1.15rem; margin-bottom: 0.35rem; color:#fff;">Muscle Gain</h3>
+      <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; margin:0;">Strength-focused hypertrophy & progressive overload.</p>
+    </div>
+
+    <!-- Category C: Cardio -->
+    <div onclick="selectCategory('Cardio')" class="card" style="margin-bottom:0; cursor:pointer; position:relative; transition: transform 0.2s ease; {% if active_plan and active_plan.category == 'Cardio' %}border-color: var(--red-bright); box-shadow: 0 0 20px var(--red-glow); background: linear-gradient(135deg, var(--bg-card) 0%, #29080B 100%);{% endif %}">
+      {% if active_plan and active_plan.category == 'Cardio' %}
+        <div class="ai-badge" style="position: absolute; top: 0.85rem; right: 0.85rem; font-size: 0.68rem;"><i class="fas fa-check-circle"></i> ACTIVE</div>
+      {% endif %}
+      <div style="font-size: 1.8rem; color: var(--red-bright); margin-bottom: 0.5rem;"><i class="fas fa-heartbeat"></i></div>
+      <h3 style="font-size: 1.15rem; margin-bottom: 0.35rem; color:#fff;">Cardio & Stamina</h3>
+      <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; margin:0;">Endurance, heart health, stair climbing & HIIT.</p>
+    </div>
+
+    <!-- Category D: Personalized Workout -->
+    <div onclick="openModal('personalized-builder-modal')" class="card" style="margin-bottom:0; cursor:pointer; position:relative; transition: transform 0.2s ease; {% if active_plan and active_plan.category == 'Personalized' %}border-color: var(--red-bright); box-shadow: 0 0 20px var(--red-glow); background: linear-gradient(135deg, var(--bg-card) 0%, #29080B 100%);{% endif %}">
+      {% if active_plan and active_plan.category == 'Personalized' %}
+        <div class="ai-badge" style="position: absolute; top: 0.85rem; right: 0.85rem; font-size: 0.68rem;"><i class="fas fa-check-circle"></i> ACTIVE</div>
+      {% endif %}
+      <div style="font-size: 1.8rem; color: var(--red-bright); margin-bottom: 0.5rem;"><i class="fas fa-sliders-h"></i></div>
+      <h3 style="font-size: 1.15rem; margin-bottom: 0.35rem; color:#fff;">Personalized Workout</h3>
+      <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; margin:0;">Customized to age, level, home/gym & equipment.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Progress Metrics & Rest Timer Grid -->
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+  <!-- Left Card: Weekly Completion & Streak Progress -->
+  <div class="card" style="margin-bottom:0;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+      <div>
+        <div style="font-size: 0.78rem; font-weight: 700; color: var(--red-bright); text-transform: uppercase;">
+          {{ active_plan.category if active_plan else 'WORKOUT' }} PROGRAM
+        </div>
+        <h3 class="card-title" style="margin:0;">{{ active_plan.name if active_plan else 'Active Plan' }}</h3>
+      </div>
+      <div class="ai-badge" style="background: rgba(255, 30, 45, 0.2); border-color: var(--red-primary); color: var(--red-bright);">
+        <i class="fas fa-fire"></i> {{ streak }} DAY STREAK
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; text-align: center;">
+      <div style="background: var(--bg-surface); padding: 0.85rem; border-radius: var(--radius-sm);">
+        <div style="font-size: 0.72rem; color: var(--text-secondary);">COMPLETED EXERCISES</div>
+        <div style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary);">{{ completed_count }} / {{ total_count }}</div>
+      </div>
+      <div style="background: var(--bg-surface); padding: 0.85rem; border-radius: var(--radius-sm);">
+        <div style="font-size: 0.72rem; color: var(--text-secondary);">WEEKLY COMPLETION</div>
+        <div style="font-size: 1.35rem; font-weight: 800; color: var(--red-bright);">{{ weekly_pct }}%</div>
+      </div>
+      <div style="background: var(--bg-surface); padding: 0.85rem; border-radius: var(--radius-sm);">
+        <div style="font-size: 0.72rem; color: var(--text-secondary);">TODAY</div>
+        <div style="font-size: 1.35rem; font-weight: 800; color: #00FF66;">
+          {% if today_day_number == 7 %}REST DAY{% else %}DAY {{ today_day_number }}{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" style="width: {{ weekly_pct }}%;"></div>
+    </div>
+  </div>
+
+  <!-- Right Card: Rest Timer Widget -->
+  <div class="card" style="margin-bottom:0; text-align: center;">
+    <h3 class="card-title" style="justify-content: center; margin-bottom: 0.75rem;"><i class="fas fa-stopwatch"></i> Rest Timer</h3>
+    
+    <div style="font-size: 2.2rem; font-weight: 900; color: var(--red-bright); font-family: var(--font-heading);" id="global-timer-val">
+      01:30
+    </div>
+
+    <div style="display: flex; gap: 0.35rem; justify-content: center; margin: 0.75rem 0; flex-wrap: wrap;">
+      <button class="btn btn-secondary btn-sm" onclick="setRestTime(30)">30s</button>
+      <button class="btn btn-secondary btn-sm" onclick="setRestTime(60)">60s</button>
+      <button class="btn btn-secondary btn-sm" onclick="setRestTime(90)">90s</button>
+      <button class="btn btn-secondary btn-sm" onclick="setRestTime(120)">120s</button>
+    </div>
+
+    <div style="display: flex; gap: 0.5rem; justify-content: center;">
+      <button class="btn btn-primary btn-sm" onclick="startRestTimerGlobal()"><i class="fas fa-play"></i> START</button>
+      <button class="btn btn-secondary btn-sm" onclick="pauseRestTimerGlobal()"><i class="fas fa-pause"></i> PAUSE</button>
+      <button class="btn btn-secondary btn-sm" onclick="resetRestTimerGlobal()"><i class="fas fa-redo"></i> RESET</button>
+    </div>
+  </div>
+</div>
+
+<!-- Weekly Monday-to-Sunday Schedule Grid -->
+<div style="margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+    <h3 style="font-size: 1.25rem; margin:0;">
+      <i class="fas fa-calendar-alt" style="color: var(--red-bright);"></i> Weekly Workout Schedule (Monday – Sunday)
+    </h3>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+    {% for day in days_data %}
+      <div class="card" style="margin-bottom: 0; {% if day.is_today %}border-color: var(--red-primary); box-shadow: 0 0 15px rgba(229, 9, 20, 0.2);{% endif %}">
+        <!-- Day Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <span style="font-size: 1.1rem; font-weight: 800; color: #fff;">{{ day.info.day_name | upper }}</span>
+            
+            {% set d_type = day.info.day_type or 'Workout' %}
+            {% if d_type == 'Rest' %}
+              <span class="ai-badge" style="background: rgba(120, 120, 120, 0.2); border-color: #787878; color: #b8b8b8;"><i class="fas fa-bed"></i> REST DAY</span>
+            {% elif d_type == 'Active Recovery' %}
+              <span class="ai-badge" style="background: rgba(0, 255, 102, 0.15); border-color: #00FF66; color: #00FF66;"><i class="fas fa-walking"></i> ACTIVE RECOVERY</span>
+            {% else %}
+              <span class="ai-badge" style="background: rgba(229, 9, 20, 0.2); border-color: var(--red-primary); color: var(--red-bright);"><i class="fas fa-running"></i> WORKOUT</span>
+            {% endif %}
+
+            <span style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);">{{ day.info.workout_name }}</span>
+            {% if day.is_today %}
+              <span class="ai-badge" style="font-size: 0.7rem;"><i class="fas fa-star"></i> TODAY</span>
+            {% endif %}
+          </div>
+          
+          <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.85rem; color: var(--text-secondary);">
+            <span><i class="fas fa-bullseye" style="color: var(--red-bright);"></i> Target: <strong>{{ day.info.muscle_groups }}</strong></span>
+            <button class="btn btn-secondary btn-sm" onclick="openEditDayModal({{ day.info | tojson | forceescape }})" title="Configure Day">
+              <i class="fas fa-cog"></i> Edit Day
+            </button>
+          </div>
+        </div>
+
+        <!-- Exercises List -->
+        {% if day.exercises|length > 0 %}
+          <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.25rem;">
+            {% for ex in day.exercises %}
+              <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); padding: 0.75rem 1rem; border-radius: var(--radius-sm); border-left: 3px solid {% if ex.completed %}#00FF66{% else %}var(--red-primary){% endif %}; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <input type="checkbox" {% if ex.completed %}checked{% endif %} 
+                         onchange="toggleExerciseCompletion({{ day.info.id }}, {{ ex.id }}, this.checked)"
+                         style="width: 18px; height: 18px; accent-color: var(--red-bright); cursor: pointer;">
+                  <div>
+                    <span style="font-weight: 600; font-size: 0.95rem; {% if ex.completed %}text-decoration: line-through; color: var(--text-muted);{% endif %}">
+                      {{ ex.exercise_name }}
+                    </span>
+                    {% if ex.instructions %}
+                      <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem;">{{ ex.instructions }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.85rem; color: var(--text-secondary); flex-wrap: wrap;">
+                  <span><strong>{{ ex.sets }}</strong> sets × <strong>{{ ex.reps }}</strong></span>
+                  <span style="color: var(--text-muted);"><i class="fas fa-stopwatch"></i> {{ ex.rest_seconds }}s</span>
+                  
+                  <button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;" onclick="openReplacementModal({{ day.info.id }}, {{ ex.id }}, '{{ ex.exercise_name | escape }}', '{{ day.info.muscle_groups | escape }}')" title="Replace Exercise with Alternative">
+                    <i class="fas fa-exchange-alt" style="color: var(--red-bright);"></i> Replace
+                  </button>
+
+                  <button class="btn-icon-delete" onclick="openEditExerciseModal({{ ex | tojson | forceescape }})" title="Edit Exercise">
+                    <i class="fas fa-edit"></i>
+                  </button>
+
+                  <button class="btn-icon-delete" onclick="deleteExercise({{ ex.id }}, '{{ ex.exercise_name | escape }}')" title="Delete Exercise">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div style="background: var(--bg-surface); padding: 1.25rem; border-radius: var(--radius-sm); text-align: center; margin-bottom: 1.25rem;">
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin:0;">
+              {% if day.info.day_type == 'Rest' %}
+                😴 Rest Day. Take time for recovery, hydration, and light mobility.
+              {% elif day.info.day_type == 'Active Recovery' %}
+                🚶 Active Recovery Day. Suggested activities: Light walking, stretching, or easy cycling.
+              {% else %}
+                No exercises assigned for this day yet. Click <strong>Add Exercise</strong> to customize.
+              {% endif %}
+            </p>
+          </div>
+        {% endif %}
+
+        <!-- Day Actions Bar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; border-top: 1px solid var(--border-color); padding-top: 0.75rem;">
+          <button class="btn btn-secondary btn-sm" onclick="openAddExerciseModal({{ day.info.id }}, '{{ day.info.day_name }}')">
+            <i class="fas fa-plus"></i> Add Exercise
+          </button>
+
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            {% if day.exercises|length > 0 %}
+              <button class="btn btn-secondary btn-sm btn-start-workout" data-workout-json="{{ day | tojson | forceescape }}">
+                <i class="fas fa-play"></i> Start Workout
+              </button>
+            {% endif %}
+            <button class="btn btn-primary btn-sm" onclick="markDayComplete({{ day.info.id }}, '{{ day.info.workout_name | escape }}')" {% if day.completed %}disabled style="opacity:0.6;"{% endif %}>
+              <i class="fas fa-check-double"></i> {% if day.completed %}Completed ✓{% else %}Mark Workout Complete{% endif %}
+            </button>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- MODALS SECTION -->
+
+<!-- 1. Personalized Plan Builder Modal -->
+<div id="personalized-builder-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width: 520px;">
+    <button onclick="closeModal('personalized-builder-modal')" class="modal-close"><i class="fas fa-times"></i></button>
+    <h3 style="margin-bottom: 1rem;"><i class="fas fa-sliders-h" style="color: var(--red-bright);"></i> Personalized Workout Preferences</h3>
+    <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.25rem;">Select your parameters to build a customized weekly plan.</p>
+
+    <form id="personalized-plan-form" onsubmit="handlePersonalizedPlanSubmit(event)">
+      <div class="form-group">
+        <label class="form-label">Experience Level:</label>
+        <select name="experience" class="form-control">
+          <option value="Beginner" selected>Beginner (Lower intensity, 60s rest)</option>
+          <option value="Intermediate">Intermediate (Moderate volume, 90s rest)</option>
+          <option value="Advanced">Advanced (High volume & progressive overload)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Workout Location:</label>
+        <select name="location" class="form-control">
+          <option value="Home">Home Workout</option>
+          <option value="Gym">Gym Workout</option>
+          <option value="Home + Gym" selected>Home + Gym</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Available Equipment (Check all available):</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem;">
+          <label><input type="checkbox" name="equipment" value="No Equipment" checked> No Equipment (Bodyweight)</label>
+          <label><input type="checkbox" name="equipment" value="Dumbbells" checked> Dumbbells</label>
+          <label><input type="checkbox" name="equipment" value="Barbell"> Barbell</label>
+          <label><input type="checkbox" name="equipment" value="Resistance Bands"> Resistance Bands</label>
+          <label><input type="checkbox" name="equipment" value="Bench"> Bench</label>
+          <label><input type="checkbox" name="equipment" value="Pull-up Bar"> Pull-up Bar</label>
+          <label><input type="checkbox" name="equipment" value="Treadmill"> Treadmill</label>
+          <label><input type="checkbox" name="equipment" value="Exercise Bike"> Exercise Bike</label>
+          <label><input type="checkbox" name="equipment" value="Cable Machine"> Cable Machine</label>
+          <label><input type="checkbox" name="equipment" value="Leg Press"> Leg Press Machine</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Target Workout Duration:</label>
+        <select name="duration_minutes" class="form-control">
+          <option value="15">15 Minutes (Express HIIT)</option>
+          <option value="30" selected>30 Minutes (Standard)</option>
+          <option value="45">45 Minutes (Intensive)</option>
+          <option value="60">60 Minutes (Full Session)</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" style="margin-top: 1rem;">
+        <i class="fas fa-magic"></i> Generate Personalized Plan
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- 2. AI Gemini Workout Generator Modal -->
+<div id="ai-workout-generator-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width: 520px;">
+    <button onclick="closeModal('ai-workout-generator-modal')" class="modal-close"><i class="fas fa-times"></i></button>
+    <h3 style="margin-bottom: 0.5rem;"><i class="fas fa-robot" style="color: var(--red-bright);"></i> Gemini AI Workout Assistant</h3>
+    <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.25rem;">Describe your workout goals or constraints and Gemini AI will generate a custom 7-day schedule.</p>
+
+    <form id="ai-workout-form" onsubmit="handleAIPlanSubmit(event)">
+      <div class="form-group">
+        <textarea id="ai-workout-prompt" class="form-control" rows="4" placeholder="e.g., 'I have dumbbells and 30 minutes. Give me a beginner muscle gain workout focusing on chest and arms.'" required></textarea>
+      </div>
+
+      <button type="submit" id="ai-workout-gen-btn" class="btn btn-primary btn-full">
+        <i class="fas fa-sparkles"></i> Generate AI Workout Plan
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- 3. Replacement Exercise Modal -->
+<div id="exercise-replacement-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width: 500px;">
+    <button onclick="closeModal('exercise-replacement-modal')" class="modal-close"><i class="fas fa-times"></i></button>
+    <h3 style="margin-bottom: 0.5rem;"><i class="fas fa-exchange-alt" style="color: var(--red-bright);"></i> Replace Exercise</h3>
+    <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1rem;">Select a suitable alternative exercise:</p>
+
+    <input type="hidden" id="replace-ex-id">
+
+    <div id="replacement-list-container" style="display: flex; flex-direction: column; gap: 0.6rem; max-height: 320px; overflow-y: auto; margin-bottom: 1rem;">
+      <!-- Populated via API -->
+    </div>
+  </div>
+</div>
+
+<!-- 4. Edit Day Configuration Modal -->
+<div id="edit-day-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width: 480px;">
+    <button onclick="closeModal('edit-day-modal')" class="modal-close"><i class="fas fa-times"></i></button>
+    <h3 style="margin-bottom: 1.25rem;"><i class="fas fa-cog" style="color: var(--red-bright);"></i> Configure Workout Day</h3>
+
+    <form id="edit-day-form" onsubmit="handleEditDaySubmit(event)">
+      <input type="hidden" name="day_id" id="edit-day-id">
+
+      <div class="form-group">
+        <label class="form-label">Day Schedule Type:</label>
+        <select name="day_type" id="edit-day-type" class="form-control">
+          <option value="Workout">Workout Day</option>
+          <option value="Rest">Rest Day (Recovery)</option>
+          <option value="Active Recovery">Active Recovery Day (Stretching/Walking)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Workout Title:</label>
+        <input type="text" name="workout_name" id="edit-day-title" class="form-control" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Target Muscle Groups / Body Area:</label>
+        <input type="text" name="muscle_groups" id="edit-day-muscle" class="form-control" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" style="margin-top: 0.5rem;">
+        <i class="fas fa-save"></i> Save Day Configuration
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- 5. Add / Edit Exercise Modal -->
+<div id="exercise-form-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width: 480px;">
+    <button onclick="closeModal('exercise-form-modal')" class="modal-close"><i class="fas fa-times"></i></button>
+    <h3 style="margin-bottom: 1.25rem;" id="exercise-modal-title">Add Exercise</h3>
+    
+    <form id="exercise-form" onsubmit="handleExerciseFormSubmit(event)">
+      <input type="hidden" name="workout_day_id" id="form-ex-day-id">
+      <input type="hidden" name="exercise_id" id="form-ex-id">
+
+      <div class="form-group">
+        <label class="form-label">Select from Catalog or Type Name:</label>
+        <input type="text" name="exercise_name" id="form-ex-name" list="master-exercises-list" class="form-control" placeholder="e.g. Incline Dumbbell Press" required>
+        <datalist id="master-exercises-list">
+          {% for ex in master_exercises %}
+            <option value="{{ ex.name }}">{{ ex.category }} - {{ ex.muscle_group }}</option>
+          {% endfor %}
+        </datalist>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label">Sets</label>
+          <input type="number" name="sets" id="form-ex-sets" class="form-control" value="3" min="1" max="10" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Reps / Duration Target</label>
+          <input type="text" name="reps" id="form-ex-reps" class="form-control" value="10 reps" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Rest Time (Seconds)</label>
+        <select name="rest_seconds" id="form-ex-rest" class="form-control">
+          <option value="30">30 seconds</option>
+          <option value="60">60 seconds</option>
+          <option value="90" selected>90 seconds</option>
+          <option value="120">120 seconds</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" style="margin-top: 0.5rem;">
+        <i class="fas fa-save"></i> Save Exercise
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- 6. Interactive Active Workout Player Modal -->
+<div id="workout-player-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width: 550px;">
+    <button onclick="closeModal('workout-player-modal')" class="modal-close"><i class="fas fa-times"></i></button>
+    <div id="workout-player-content">
+      <!-- Rendered dynamically by app.js -->
+    </div>
+  </div>
+</div>
+
+<script>
+let globalTimerSeconds = 90;
+let globalTimerInterval = null;
+let currentExerciseMode = 'add';
+
+/* Category Selector Switcher */
+async function selectCategory(catName) {
+  const formData = new FormData();
+  formData.append('category', catName);
+  try {
+    const res = await fetch('/api/workout/select-category', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => window.location.reload(), 500);
+    }
+  } catch (err) {
+    showToast('Failed to switch category.', 'danger');
+  }
+}
+
+/* Personalized Builder Submit */
+async function handlePersonalizedPlanSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  try {
+    const res = await fetch('/api/workout/select-category', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      showToast('Generated personalized plan!', 'success');
+      closeModal('personalized-builder-modal');
+      setTimeout(() => window.location.reload(), 600);
+    }
+  } catch (err) {
+    showToast('Error generating plan.', 'danger');
+  }
+}
+
+/* Gemini AI Workout Generator Submit */
+async function handleAIPlanSubmit(e) {
+  e.preventDefault();
+  const prompt = document.getElementById('ai-workout-prompt').value.trim();
+  const btn = document.getElementById('ai-workout-gen-btn');
+  if (!prompt) return;
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Generating Plan with Gemini AI...';
+
+  try {
+    const res = await fetch('/api/workout/generate-ai-plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: prompt })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      closeModal('ai-workout-generator-modal');
+      setTimeout(() => window.location.reload(), 800);
+    } else {
+      showToast(data.message || 'AI plan generation failed.', 'danger');
+    }
+  } catch (err) {
+    showToast('Error communicating with Gemini AI.', 'danger');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-sparkles"></i> Generate AI Workout Plan';
+  }
+}
+
+/* Exercise Replacement Handler */
+async function openReplacementModal(dayId, exId, currentName, targetMuscle) {
+  document.getElementById('replace-ex-id').value = exId;
+  const container = document.getElementById('replacement-list-container');
+  container.innerHTML = '<div style="text-align:center; padding:1.5rem;"><i class="fas fa-circle-notch fa-spin"></i> Finding alternative exercises...</div>';
+  openModal('exercise-replacement-modal');
+
+  try {
+    const res = await fetch('/api/workout/get-replacements', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ exercise_name: currentName, target_muscle: targetMuscle })
+    });
+    const data = await res.json();
+    if (data.success && data.replacements.length > 0) {
+      container.innerHTML = data.replacements.map(item => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface); padding:0.75rem 1rem; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+          <div>
+            <div style="font-weight:700; color:#fff;">${item.name}</div>
+            <div style="font-size:0.78rem; color:var(--text-secondary);">${item.equipment} &bull; ${item.muscle_group}</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="applyExerciseReplacement(${exId}, '${item.name.replace(/'/g, "\\'")}')">
+            Swap
+          </button>
+        </div>
+      `).join('');
+    } else {
+      container.innerHTML = '<p style="text-align:center; color:var(--text-muted); font-size:0.9rem;">No direct alternatives found.</p>';
+    }
+  } catch (err) {
+    container.innerHTML = '<p style="text-align:center; color:var(--red-bright); font-size:0.9rem;">Error fetching replacements.</p>';
+  }
+}
+
+async function applyExerciseReplacement(exId, newName) {
+  const formData = new FormData();
+  formData.append('exercise_id', exId);
+  formData.append('new_exercise_name', newName);
+  try {
+    const res = await fetch('/api/workout/replace-exercise', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      closeModal('exercise-replacement-modal');
+      setTimeout(() => window.location.reload(), 600);
+    }
+  } catch (err) {
+    showToast('Failed to replace exercise.', 'danger');
+  }
+}
+
+/* Edit Day Handler */
+function openEditDayModal(dayInfo) {
+  document.getElementById('edit-day-id').value = dayInfo.id;
+  document.getElementById('edit-day-type').value = dayInfo.day_type || 'Workout';
+  document.getElementById('edit-day-title').value = dayInfo.workout_name;
+  document.getElementById('edit-day-muscle').value = dayInfo.muscle_groups;
+  openModal('edit-day-modal');
+}
+
+async function handleEditDaySubmit(e) {
+  e.preventDefault();
+  const formData = new FormData(e.target);
+  try {
+    const res = await fetch('/api/workout/edit-day', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      closeModal('edit-day-modal');
+      setTimeout(() => window.location.reload(), 600);
+    }
+  } catch (err) {
+    showToast('Failed to update day.', 'danger');
+  }
+}
+
+/* Rest Timer Widget Logic */
+function setRestTime(sec) {
+  globalTimerSeconds = sec;
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+  const m = String(Math.floor(globalTimerSeconds / 60)).padStart(2, '0');
+  const s = String(globalTimerSeconds % 60).padStart(2, '0');
+  document.getElementById('global-timer-val').textContent = `${m}:${s}`;
+}
+
+function startRestTimerGlobal() {
+  clearInterval(globalTimerInterval);
+  globalTimerInterval = setInterval(() => {
+    if (globalTimerSeconds > 0) {
+      globalTimerSeconds--;
+      updateTimerDisplay();
+    } else {
+      clearInterval(globalTimerInterval);
+      showToast('⏱️ Rest timer complete! Ready for next set.', 'success');
+    }
+  }, 1000);
+}
+
+function pauseRestTimerGlobal() {
+  clearInterval(globalTimerInterval);
+}
+
+function resetRestTimerGlobal() {
+  clearInterval(globalTimerInterval);
+  globalTimerSeconds = 90;
+  updateTimerDisplay();
+}
+
+/* Exercise Toggle & Completion */
+async function toggleExerciseCompletion(dayId, exId, isChecked) {
+  const formData = new FormData();
+  formData.append('workout_day_id', dayId);
+  formData.append('exercise_id', exId);
+  formData.append('completed', isChecked ? 1 : 0);
+
+  try {
+    const res = await fetch('/api/workout-toggle-exercise', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      showToast(isChecked ? 'Exercise completed ✓' : 'Exercise unchecked', 'success');
+      setTimeout(() => window.location.reload(), 600);
+    }
+  } catch (err) {
+    showToast('Failed to update exercise status.', 'danger');
+  }
+}
+
+async function markDayComplete(dayId, workoutName) {
+  const formData = new FormData();
+  formData.append('workout_day_id', dayId);
+  formData.append('workout_name', workoutName);
+
+  try {
+    const res = await fetch('/api/workout-complete-day', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => window.location.reload(), 800);
+    }
+  } catch (err) {
+    showToast('Failed to mark workout complete.', 'danger');
+  }
+}
+
+/* Add / Edit Exercise Modal Handlers */
+function openAddExerciseModal(dayId, dayName) {
+  currentExerciseMode = 'add';
+  document.getElementById('exercise-modal-title').textContent = `Add Exercise to ${dayName}`;
+  document.getElementById('exercise-form').reset();
+  document.getElementById('form-ex-day-id').value = dayId;
+  document.getElementById('form-ex-id').value = '';
+  openModal('exercise-form-modal');
+}
+
+function openEditExerciseModal(ex) {
+  currentExerciseMode = 'edit';
+  document.getElementById('exercise-modal-title').textContent = 'Edit Exercise';
+  document.getElementById('form-ex-id').value = ex.id;
+  document.getElementById('form-ex-day-id').value = ex.workout_day_id;
+  document.getElementById('form-ex-name').value = ex.exercise_name;
+  document.getElementById('form-ex-sets').value = ex.sets;
+  document.getElementById('form-ex-reps').value = ex.reps;
+  document.getElementById('form-ex-rest').value = ex.rest_seconds;
+  openModal('exercise-form-modal');
+}
+
+async function handleExerciseFormSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  const endpoint = currentExerciseMode === 'add' ? '/api/add-workout-exercise' : '/api/edit-workout-exercise';
+
+  try {
+    const res = await fetch(endpoint, { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      closeModal('exercise-form-modal');
+      setTimeout(() => window.location.reload(), 800);
+    } else {
+      showToast(data.message, 'danger');
+    }
+  } catch (err) {
+    showToast('Error saving exercise.', 'danger');
+  }
+}
+
+async function deleteExercise(exId, exName) {
+  if (!confirm(`Are you sure you want to delete "${exName}"?`)) return;
+  const formData = new FormData();
+  formData.append('exercise_id', exId);
+
+  try {
+    const res = await fetch('/api/delete-workout-exercise', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      showToast(data.message, 'success');
+      setTimeout(() => window.location.reload(), 600);
+    }
+  } catch (err) {
+    showToast('Failed to delete exercise.', 'danger');
+  }
+}
+</script>
+{% endblock %}

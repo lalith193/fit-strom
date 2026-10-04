@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - FitTrack AI{% endblock %}
+
+{% block page_title %}Good Morning, {{ user.name }} 👋{% endblock %}
+{% block page_subtitle %}Here is your nutrition & workout overview for today, {{ today_str }}.{% endblock %}
+
+{% block content %}
+<!-- Today's Progress Grid -->
+<div style="margin-bottom: 0.5rem;">
+  <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
+    <i class="fas fa-chart-pie" style="color: var(--red-bright);"></i> Today's Progress
+  </h3>
+</div>
+
+<div class="metrics-grid">
+  <!-- Calories Card -->
+  <div class="metric-card">
+    <div class="metric-icon"><i class="fas fa-fire-alt"></i></div>
+    <div class="metric-title">Calories</div>
+    <div class="metric-value">{{ totals.calories }} / {{ targets.calorie_target }} <span style="font-size: 0.85rem; font-weight: 500;">kcal</span></div>
+    {% set cal_pct = (totals.calories / targets.calorie_target * 100) if targets.calorie_target else 0 %}
+    {% set cal_bar_width = cal_pct if cal_pct <= 100 else 100 %}
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" style="width: {{ cal_bar_width }}%;"></div>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;" class="metric-remaining">
+      <span>
+        {% if targets.calorie_target > totals.calories %}
+          {{ (targets.calorie_target - totals.calories) | round(1) }} kcal remaining
+        {% else %}
+          Target reached!
+        {% endif %}
+      </span>
+      <span style="color: var(--red-bright); font-weight: 700;">{{ cal_pct | round(0) | int }}%</span>
+    </div>
+  </div>
+
+  <!-- Protein Card -->
+  <div class="metric-card">
+    <div class="metric-icon"><i class="fas fa-drumstick-bite"></i></div>
+    <div class="metric-title">Protein</div>
+    <div class="metric-value">{{ totals.protein }} / {{ targets.protein_target }} <span style="font-size: 0.85rem; font-weight: 500;">g</span></div>
+    {% set prot_pct = (totals.protein / targets.protein_target * 100) if targets.protein_target else 0 %}
+    {% set prot_bar_width = prot_pct if prot_pct <= 100 else 100 %}
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" style="width: {{ prot_bar_width }}%;"></div>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;" class="metric-remaining">
+      <span>
+        {% if targets.protein_target > totals.protein %}
+          {{ (targets.protein_target - totals.protein) | round(1) }} g remaining
+        {% else %}
+          Target reached!
+        {% endif %}
+      </span>
+      <span style="color: var(--red-bright); font-weight: 700;">{{ prot_pct | round(0) | int }}%</span>
+    </div>
+  </div>
+
+  <!-- Fiber Card -->
+  <div class="metric-card">
+    <div class="metric-icon"><i class="fas fa-seedling"></i></div>
+    <div class="metric-title">Fiber</div>
+    <div class="metric-value">{{ totals.fiber }} / {{ targets.fiber_target }} <span style="font-size: 0.85rem; font-weight: 500;">g</span></div>
+    {% set fib_pct = (totals.fiber / targets.fiber_target * 100) if targets.fiber_target else 0 %}
+    {% set fib_bar_width = fib_pct if fib_pct <= 100 else 100 %}
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" style="width: {{ fib_bar_width }}%;"></div>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;" class="metric-remaining">
+      <span>
+        {% if targets.fiber_target > totals.fiber %}
+          {{ (targets.fiber_target - totals.fiber) | round(1) }} g remaining
+        {% else %}
+          Target reached!
+        {% endif %}
+      </span>
+      <span style="color: var(--red-bright); font-weight: 700;">{{ fib_pct | round(0) | int }}%</span>
+    </div>
+  </div>
+
+  <!-- Healthy Fats Card -->
+  <div class="metric-card">
+    <div class="metric-icon"><i class="fas fa-cubes"></i></div>
+    <div class="metric-title">Healthy Fats</div>
+    <div class="metric-value">{{ totals.fat }} / {{ targets.fat_target }} <span style="font-size: 0.85rem; font-weight: 500;">g</span></div>
+    {% set fat_pct = (totals.fat / targets.fat_target * 100) if targets.fat_target else 0 %}
+    {% set fat_bar_width = fat_pct if fat_pct <= 100 else 100 %}
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" style="width: {{ fat_bar_width }}%;"></div>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;" class="metric-remaining">
+      <span>
+        {% if targets.fat_target > totals.fat %}
+          {{ (targets.fat_target - totals.fat) | round(1) }} g remaining
+        {% else %}
+          Target reached!
+        {% endif %}
+      </span>
+      <span style="color: var(--red-bright); font-weight: 700;">{{ fat_pct | round(0) | int }}%</span>
+    </div>
+  </div>
+</div>
+
+<!-- Dynamic AI Recommendation Card -->
+<div class="ai-recommendation-card">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+    <div class="ai-badge"><i class="fas fa-sparkles"></i> FREE AI ASSISTANT</div>
+    <a href="{{ url_for('ai_coach') }}" class="btn btn-primary btn-sm">
+      <i class="fas fa-magic"></i> Open AI Assistant
+    </a>
+  </div>
+  <div class="ai-text">
+    "{{ ai_recommendation }}"
+  </div>
+</div>
+
+<!-- Two Column Dashboard Layout -->
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+  <!-- Left Column: Today's Meals Log -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-utensils"></i> Today's Meals</h3>
+      <a href="{{ url_for('food_explorer') }}" class="btn btn-primary btn-sm">
+        <i class="fas fa-plus"></i> Add Food
+      </a>
+    </div>
+
+    {% set total_logged = meals['Breakfast']|length + meals['Lunch']|length + meals['Snack']|length + meals['Dinner']|length %}
+    {% if total_logged == 0 %}
+      <div style="text-align: center; padding: 3rem 1rem;">
+        <i class="fas fa-utensils" style="font-size: 3rem; color: var(--border-color); margin-bottom: 1rem;"></i>
+        <h4>No food logged today</h4>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">Start tracking your meals to monitor your daily nutrition progress.</p>
+        <a href="{{ url_for('food_explorer') }}" class="btn btn-primary btn-sm">
+          <i class="fas fa-search"></i> Explore Foods
+        </a>
+      </div>
+    {% else %}
+      {% for meal_name, log_items in meals.items() %}
+        {% if log_items|length > 0 %}
+          <div class="meal-section">
+            <div class="meal-title">
+              <span><i class="fas fa-clock"></i> {{ meal_name }}</span>
+              <span style="font-size: 0.85rem; font-weight: normal; color: var(--text-secondary);">
+                {{ log_items | sum(attribute='calories') | round(1) }} kcal
+              </span>
+            </div>
+            {% for item in log_items %}
+              <div class="food-log-item">
+                <div class="food-log-info">
+                  <h4>{{ item.food_name }} <span style="font-weight: normal; color: var(--text-muted);">x {{ item.quantity }} {{ item.unit }}</span></h4>
+                  <p>{{ item.calories }} kcal &bull; {{ item.protein }}g Protein &bull; {{ item.carbs }}g Carbs &bull; {{ item.fat }}g Fat &bull; {{ item.fiber }}g Fiber</p>
+                </div>
+                <button onclick="deleteFoodLog({{ item.id }})" class="btn-icon-delete" title="Delete log">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <!-- Right Column: Workout & Water Widgets -->
+  <div>
+    <!-- Today's Workout Widget -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-dumbbell"></i> Today's Workout</h3>
+      </div>
+      {% if today_workout %}
+        <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-sm); border-left: 3px solid var(--red-bright);">
+          <div style="font-weight: 700; font-size: 1.05rem;">{{ today_workout.workout_name }}</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+            Completed &bull; {{ today_workout.duration_minutes }} mins &bull; 🔥 {{ today_workout.calories_burned }} kcal
+          </div>
+        </div>
+      {% else %}
+        <div style="text-align: center; padding: 1.5rem 0;">
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">No workout completed today.</p>
+          <a href="{{ url_for('workout') }}" class="btn btn-secondary btn-full btn-sm">
+            <i class="fas fa-play"></i> Start Workout
+          </a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Water Widget -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-tint"></i> Water Tracker</h3>
+      </div>
+      <div style="text-align: center; padding: 0.5rem 0;">
+        <div style="font-size: 1.8rem; font-weight: 800; color: var(--red-bright);" id="water-val-display">
+          {{ water_today }} / {{ targets.water_target }} L
+        </div>
+        {% set water_pct = (water_today / targets.water_target * 100) %}
+        {% set water_bar_width = water_pct if water_pct <= 100 else 100 %}
+        <div class="progress-bar-bg" style="margin: 1rem 0;">
+          <div class="progress-bar-fill" id="water-fill-bar" style="width: {{ water_bar_width }}%;"></div>
+        </div>
+        <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem;">
+          <button class="btn btn-secondary btn-sm btn-add-water" data-amount="0.25">+250 ml</button>
+          <button class="btn btn-secondary btn-sm btn-add-water" data-amount="0.5">+500 ml</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add Food Modal -->
+<div id="add-food-modal" class="modal-overlay">
+  <div class="modal-content">
+    <button onclick="closeModal('add-food-modal')" class="modal-close"><i class="fas fa-times"></i></button>
+    <h3 style="margin-bottom: 1.25rem;" id="modal-food-title">Add Food to Log</h3>
+    
+    <form id="add-food-form">
+      <input type="hidden" name="food_id" id="modal-food-id">
+      
+      <div class="form-group">
+        <label class="form-label" id="modal-food-serving-label">Quantity:</label>
+        <input type="number" step="0.1" name="quantity" id="modal-qty-input" class="form-control" value="100" min="0.1" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Meal Type:</label>
+        <select name="meal_type" class="form-control">
+          <option value="Breakfast">Breakfast</option>
+          <option value="Lunch">Lunch</option>
+          <option value="Snack">Snack</option>
+          <option value="Dinner">Dinner</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" style="margin-top: 1rem;">
+        <i class="fas fa-plus"></i> ADD TO TODAY
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

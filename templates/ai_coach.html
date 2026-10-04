@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}AI Assistant - FitTrack AI{% endblock %}
+{% block page_title %}Free AI Assistant{% endblock %}
+{% block page_subtitle %}Powered by Google Gemini — Ask your AI assistant for custom meal plans, workout routines, and fitness advice.{% endblock %}
+
+{% block content %}
+<!-- AI Assistant Container -->
+<div class="chat-container" style="border: 1px solid rgba(229, 9, 20, 0.4); border-radius: var(--radius-md); box-shadow: var(--shadow-card); background: linear-gradient(135deg, var(--bg-card) 0%, #1a0507 100%);">
+  <div class="chat-header" style="padding: 1.25rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <div class="avatar-icon" style="background: var(--red-bright); width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #fff; font-size: 1.2rem;">
+        <i class="fas fa-robot"></i>
+      </div>
+      <div>
+        <h3 style="font-size: 1.15rem; margin:0; font-family: var(--font-heading);">FitTrack AI Assistant</h3>
+        <span style="font-size: 0.78rem; color: #00FF66;"><i class="fas fa-circle" style="font-size: 0.5rem;"></i> Active & Ready &bull; Gemini 2.5 Flash Free Tier</span>
+      </div>
+    </div>
+    <div class="ai-badge" style="background: rgba(229, 9, 20, 0.2); border: 1px solid var(--red-primary); color: var(--red-bright); padding: 0.3rem 0.8rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 700;">
+      <i class="fas fa-sparkles"></i> FREE AI ASSISTANT
+    </div>
+  </div>
+
+  <!-- Messages Output Scroll Area -->
+  <div class="chat-messages" id="chat-messages" style="min-height: 280px; max-height: 480px; overflow-y: auto; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
+    <div class="message ai">
+      👋 Hi {{ user.name if user else 'there' }}! I am your free <strong>FitTrack AI Assistant</strong> powered by Google Gemini API.<br><br>
+      {% if user %}
+      I have loaded your profile metrics ({{ user.weight }} kg, {{ user.height }} cm, Goal: {{ user.goal }}).
+      {% endif %}
+      Enter any question or request in the box below and click <strong>Generate</strong>!
+    </div>
+  </div>
+
+  <!-- Suggested Quick Prompts -->
+  <div class="chat-suggestions" style="padding: 0.75rem 1.25rem; background: var(--bg-deep); border-top: 1px solid var(--border-color); display: flex; gap: 0.5rem; overflow-x: auto;">
+    <button type="button" class="pill chat-suggestion-chip" data-query="Suggest a high-protein meal plan for weight loss">High-protein meal plan</button>
+    <button type="button" class="pill chat-suggestion-chip" data-query="Give me a 45-minute dumbbell workout routine">Dumbbell workout routine</button>
+    <button type="button" class="pill chat-suggestion-chip" data-query="How can I hit my daily fiber target easily?">Fiber-dense foods</button>
+    <button type="button" class="pill chat-suggestion-chip" data-query="What should I eat post-workout for muscle recovery?">Post-workout recovery</button>
+    <button type="button" class="pill chat-suggestion-chip" data-query="Analyze my daily macro targets and calories">Macro advice</button>
+  </div>
+
+  <!-- Interactive AI Assistant Form with Input Textbox and Generate Button -->
+  <form id="ai-assistant-form" style="padding: 1.25rem; background: var(--bg-deep); border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 0.75rem;">
+    <div class="form-group" style="margin-bottom: 0; position: relative;">
+      <textarea id="ai-assistant-input" class="form-control" rows="3" placeholder="Enter your question or request here (e.g. 'Suggest a 2,000 kcal high-protein meal plan with recipes')..." style="resize: vertical; width: 100%; min-height: 75px; padding: 0.75rem 1rem; border-radius: var(--radius-sm);" required></textarea>
+      <div id="input-validation-msg" style="display: none; color: #ff4d4d; font-size: 0.825rem; margin-top: 0.4rem; font-weight: 500;">
+        <i class="fas fa-exclamation-circle"></i> Please enter a prompt or request before generating.
+      </div>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+      <div style="font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem;">
+        <i class="fas fa-shield-alt" style="color: var(--red-bright);"></i>
+        <span>Secure Backend API &bull; Free Tier Model (Gemini 2.5 Flash)</span>
+      </div>
+      <button type="submit" id="ai-generate-btn" class="btn btn-primary" style="padding: 0.75rem 1.75rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-sparkles"></i> Generate
+      </button>
+    </div>
+  </form>
+</div>
+
+<p style="font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 1.25rem;">
+  <i class="fas fa-info-circle"></i> FitTrack AI Assistant guidance is for general wellness purposes. Always consult a qualified healthcare provider for personal health advice.
+</p>
+{% endblock %}

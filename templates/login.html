@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Login - FitTrack AI{% endblock %}
+{% block body_class %}auth-body{% endblock %}
+
+{% block public_content %}
+<div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; background: var(--bg-main);">
+  <div class="card" style="width: 100%; max-width: 420px; padding: 2.25rem; border-color: rgba(229, 9, 20, 0.4);">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <a href="{{ url_for('index') }}">
+        <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="FitTrack AI" style="height: 48px; margin-bottom: 0.75rem;">
+      </a>
+      <h2 style="font-size: 1.5rem;">Welcome Back</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">Sign in to your fitness & AI dashboard</p>
+    </div>
+
+    <form action="{{ url_for('login') }}" method="POST">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input type="email" name="email" class="form-control" placeholder="name@example.com" required>
+      </div>
+
+      <div class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+          <label class="form-label" style="margin-bottom:0;">Password</label>
+          <a href="#" onclick="alert('Password reset link sent to your registered email.')" style="font-size: 0.8rem; color: var(--text-muted);">Forgot Password?</a>
+        </div>
+        <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" style="margin-top: 1rem;">
+        <i class="fas fa-sign-in-alt"></i> Login
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary);">
+      Don't have an account? <a href="{{ url_for('register') }}" style="color: var(--red-bright); font-weight: 600;">Create Account</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

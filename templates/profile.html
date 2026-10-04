@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}User Profile - FitTrack AI{% endblock %}
+{% block page_title %}User Profile & Targets{% endblock %}
+{% block page_subtitle %}Manage your biological metrics and calculated daily macro targets.{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+  <!-- Left Column: Current Targets Summary -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-bullseye"></i> Calculated Daily Targets</h3>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+      <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-sm); border-left: 3px solid var(--red-primary);">
+        <div style="font-size: 0.75rem; color: var(--text-secondary);">CALORIE TARGET</div>
+        <div style="font-size: 1.5rem; font-weight: 800;">{{ targets.calorie_target }} <span style="font-size:0.8rem; font-weight:normal;">kcal</span></div>
+      </div>
+
+      <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-sm); border-left: 3px solid var(--red-bright);">
+        <div style="font-size: 0.75rem; color: var(--text-secondary);">PROTEIN TARGET</div>
+        <div style="font-size: 1.5rem; font-weight: 800;">{{ targets.protein_target }} <span style="font-size:0.8rem; font-weight:normal;">g</span></div>
+      </div>
+
+      <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-sm); border-left: 3px solid #00FF66;">
+        <div style="font-size: 0.75rem; color: var(--text-secondary);">FIBER TARGET</div>
+        <div style="font-size: 1.5rem; font-weight: 800;">{{ targets.fiber_target }} <span style="font-size:0.8rem; font-weight:normal;">g</span></div>
+      </div>
+
+      <div style="background: var(--bg-surface); padding: 1rem; border-radius: var(--radius-sm); border-left: 3px solid #FFBB00;">
+        <div style="font-size: 0.75rem; color: var(--text-secondary);">HEALTHY FAT TARGET</div>
+        <div style="font-size: 1.5rem; font-weight: 800;">{{ targets.fat_target }} <span style="font-size:0.8rem; font-weight:normal;">g</span></div>
+      </div>
+    </div>
+
+    <div style="background: var(--bg-deep); padding: 1rem; border-radius: var(--radius-sm); font-size: 0.85rem; color: var(--text-secondary);">
+      <p>• <strong>BMR (Basal Metabolic Rate):</strong> {{ targets.bmr }} kcal</p>
+      <p>• <strong>TDEE (Total Daily Energy Expenditure):</strong> {{ targets.tdee }} kcal</p>
+      <p>• <strong>BMI Estimate:</strong> {{ targets.bmi }}</p>
+    </div>
+  </div>
+
+  <!-- Right Column: Edit Profile Form -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-user-edit"></i> Edit Profile Details</h3>
+    </div>
+
+    <form action="{{ url_for('profile') }}" method="POST">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" name="name" class="form-control" value="{{ user.name }}" required>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label">Age</label>
+          <input type="number" name="age" class="form-control" value="{{ user.age }}" min="10" max="100" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gender</label>
+          <select name="gender" class="form-control">
+            <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
+            <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
+            <option value="Other" {% if user.gender == 'Other' %}selected{% endif %}>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group">
+          <label class="form-label">Height (cm)</label>
+          <input type="number" step="0.1" name="height" class="form-control" value="{{ user.height }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Weight (kg)</label>
+          <input type="number" step="0.1" name="weight" class="form-control" value="{{ user.weight }}" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Activity Level</label>
+        <select name="activity_level" class="form-control">
+          <option value="Sedentary" {% if user.activity_level == 'Sedentary' %}selected{% endif %}>Sedentary</option>
+          <option value="Light" {% if user.activity_level == 'Light' %}selected{% endif %}>Light</option>
+          <option value="Moderate" {% if user.activity_level == 'Moderate' %}selected{% endif %}>Moderate</option>
+          <option value="Active" {% if user.activity_level == 'Active' %}selected{% endif %}>Active</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Goal</label>
+        <select name="goal" class="form-control">
+          <option value="Weight Loss" {% if user.goal == 'Weight Loss' %}selected{% endif %}>Weight Loss (-500 kcal)</option>
+          <option value="Muscle Gain" {% if user.goal == 'Muscle Gain' %}selected{% endif %}>Muscle Gain (+350 kcal)</option>
+          <option value="Maintain Weight" {% if user.goal == 'Maintain Weight' %}selected{% endif %}>Maintain Weight</option>
+          <option value="Strength" {% if user.goal == 'Strength' %}selected{% endif %}>Strength</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full">
+        <i class="fas fa-save"></i> Save Profile & Update Targets
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

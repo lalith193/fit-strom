@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - FitTrack AI{% endblock %}
+{% block page_title %}Account Settings & Security{% endblock %}
+{% block page_subtitle %}Manage password, privacy options, and account tracking logs.{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+  <!-- Change Password Card -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-lock"></i> Change Password</h3>
+    </div>
+
+    <form action="{{ url_for('settings') }}" method="POST">
+      <input type="hidden" name="action" value="change_password">
+      
+      <div class="form-group">
+        <label class="form-label">Current Password</label>
+        <input type="password" name="old_password" class="form-control" placeholder="••••••••" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">New Password</label>
+        <input type="password" name="new_password" class="form-control" placeholder="••••••••" required minlength="6">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full">
+        <i class="fas fa-key"></i> Update Password
+      </button>
+    </form>
+  </div>
+
+  <!-- Clear Tracking Logs / Data Privacy Card -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title"><i class="fas fa-shield-alt"></i> Data & Privacy Settings</h3>
+    </div>
+
+    <div style="margin-bottom: 1.5rem;">
+      <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem;">Active Theme</h4>
+      <div style="background: var(--bg-surface); padding: 0.75rem; border-radius: var(--radius-sm); border-left: 3px solid var(--red-bright); font-size: 0.85rem;">
+        🎨 <strong>RED + BLACK AI THEME</strong> (Default Production Preset)
+      </div>
+    </div>
+
+    <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+      <h4 style="font-size: 0.95rem; color: var(--red-bright); margin-bottom: 0.5rem;"><i class="fas fa-exclamation-triangle"></i> Clear Personal Logs</h4>
+      <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+        This will permanently reset all your food logs, workout logs, and water intake history.
+      </p>
+      
+      <form action="{{ url_for('settings') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete all your personal logs? This action cannot be undone.');">
+        <input type="hidden" name="action" value="clear_logs">
+        <button type="submit" class="btn btn-secondary btn-full" style="color: var(--red-bright); border-color: var(--red-dark);">
+          <i class="fas fa-trash-alt"></i> Clear All Personal Logs
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
